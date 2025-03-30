@@ -14,11 +14,26 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(glm)
 
+set(MODELS_DIR "${CMAKE_SOURCE_DIR}/models")
+
+# Copia os shaders para o diretório de build
+file(COPY src/shader_vertex.glsl src/shader_fragment.glsl DESTINATION ${CMAKE_BINARY_DIR})
+
 add_executable(hello_window include/config.h
-                        include/gui.h
+                        include/Vertex.h
+                        include/Material.h
+                        include/Mesh.h
+                        include/Model.h
+                        include/Gui.h
+                        include/Shader.h
+                        include/Camera.h
                         src/main.cpp
                         src/glad.c
-                        src/gui.cpp
+                        src/Gui.cpp
+                        src/Mesh.cpp
+                        src/Model.cpp
+                        src/Shader.cpp
+                        src/Camera.cpp
                         # Arquivos do ImGui (ajuste os caminhos conforme sua estrutura)
                         dependencies/imgui/imgui.cpp
                         dependencies/imgui/imgui_demo.cpp
