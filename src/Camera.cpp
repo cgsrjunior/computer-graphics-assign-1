@@ -74,15 +74,19 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::centerOnObject(const glm::vec3& center, float radius) {
-    // Calcula a distância necessária para o objeto caber no view frustum
-    float fovY = glm::radians(Zoom);
-    float distance = radius / std::tan(fovY * 0.5f);
+    // Calcula distância baseada no tamanho do objeto e FOV
+    float fovRad = glm::radians(Zoom);
+    float distance = (radius * 2.0f) / tan(fovRad * 0.5f);
     
-    // Adiciona uma margem de 20%
-    distance *= 1.2f;
-    
-    // Posiciona a câmera olhando para o centro do objeto
+    // Posiciona a câmera atrás do objeto
     Position = center - glm::vec3(0.0f, 0.0f, distance);
+    
+    // Ajusta a altura para uma visualização melhor
+    Position.y = center.y + radius * 0.5f;
+    
+    // Mantém o foco no centro do objeto
     Front = glm::normalize(center - Position);
+    WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    
     updateCameraVectors();
 }

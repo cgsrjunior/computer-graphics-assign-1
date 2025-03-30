@@ -15,8 +15,8 @@ void processInput(GLFWwindow* window);
 void printBoundingBoxInfo(const Model& model);
 
 // Configurações
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1820;
+const unsigned int SCR_HEIGHT = 1020;
 
 // Câmera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -57,20 +57,29 @@ int main(){
 
     // Cria o programa de shader
     Shader ourShader("src/shader_vertex.glsl", "src/shader_fragment.glsl");
-    Model ourModel("models/cube.in");
+    Model cubeModel("models/cube.in");
+    Model cowModel("models/cow_up.in");
 
-    printBoundingBoxInfo(ourModel);
+    printBoundingBoxInfo(cubeModel);
+    printBoundingBoxInfo(cowModel);
+
+    // Normaliza as escalas
+    float cubeScale = 1.0f / cubeModel.getBoundingRadius();
+    float cowScale = 1.0f / cowModel.getBoundingRadius();
+
+    // Posições relativas
+    glm::vec3 cubePosition(0.0f, 0.0f, -2.0f);  // Cubo mais perto
+    glm::vec3 cowPosition(0.0f, 0.0f, 2.0f);    // Vaca mais longe
 
     // Configura a câmera para centralizar no objeto
-    glm::vec3 objectCenter = ourModel.getCenter();
-    float objectRadius = ourModel.getBoundingRadius();
-    camera.centerOnObject(glm::vec3(0.0f), ourModel.getBoundingRadius());
-    //camera.centerOnObject(objectCenter, objectRadius);
+    glm::vec3 objectCenter = cubeModel.getCenter();
+    float objectRadius = -cubeModel.getBoundingRadius();
+    camera.centerOnObject(glm::vec3(0.0f), objectRadius);
 
     Gui gui(window);
     gui.init();
     
-    glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Configuração OpenGL
     glEnable(GL_DEPTH_TEST);
     //glDisable(GL_CULL_FACE); // Desativa culling temporariamente
@@ -87,34 +96,46 @@ int main(){
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Ative o programa de shader
-        ourShader.use();
-
-        // Configura transformações
-        // Tente valores diferentes como:
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/SCR_HEIGHT, 0.01f, 50.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
-        // 1. Centraliza o objeto (compensando seu centro)
-        model = glm::translate(model, -ourModel.getCenter());
-        // 2. Normaliza o tamanho (opcional, mas recomendado)
-        float scaleFactor = 1.0f / ourModel.getBoundingRadius();
-        model = glm::scale(model, glm::vec3(scaleFactor));
-        // 3. Rotação mínima para melhor visualização (opcional)
-        model = glm::rotate(model, glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        //Setting shaders and draw
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
-        
-        
         //GUI Render
         gui.beginFrame();
         gui.createMenu();
-        //const ImVec4 gui_color = gui.getClearColor();
-        //renderClearColorGui(gui_color);
+        const ImVec4 gui_color = gui.getClearColor();
+        renderClearColorGui(gui_color);
+
+        // Ativa o shader
+        ourShader.use();
+        
+        // Configurações comuns a ambos os modelos
+        glm::mat4 projection = glm::perspective(
+            glm::radians(45.0f),
+            (float)SCR_WIDTH/(float)SCR_HEIGHT,
+            0.1f,
+            1000.0f  // Far plane grande para ambos objetos
+        );
+    
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+        
+        // 1. Renderiza o cubo primeiro
+        glm::mat4 cubeModelMatrix = glm::mat4(1.0f);
+        cubeModelMatrix = glm::translate(cubeModelMatrix, cubePosition);
+        cubeModelMatrix = glm::scale(cubeModelMatrix, glm::vec3(cubeScale));
+        cubeModelMatrix = glm::rotate(cubeModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        
+        ourShader.setMat4("model", cubeModelMatrix);
+        cubeModel.Draw(ourShader);
+        
+        // 2. Renderiza a vaca depois
+        glm::mat4 cowModelMatrix = glm::mat4(1.0f);
+        cowModelMatrix = glm::translate(cowModelMatrix, cowPosition);
+        cowModelMatrix = glm::scale(cowModelMatrix, glm::vec3(cowScale));
+        cowModelMatrix = glm::rotate(cowModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        
+        ourShader.setMat4("model", cowModelMatrix);
+        cowModel.Draw(ourShader);
+
+        
         gui.endFrame();
 
         /* code */

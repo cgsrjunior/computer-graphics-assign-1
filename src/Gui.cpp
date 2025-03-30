@@ -43,6 +43,21 @@ void Gui::endFrame()
 
 void Gui::createMenu()
 {
+    // Obtém o tamanho da viewport
+    ImGuiIO& io = ImGui::GetIO();
+    float windowWidth = 300.0f; // Largura desejada para sua janela
+
+    // Configura a posição para o canto superior direito
+    ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - windowWidth, 20.0f), ImGuiCond_Always);
+
+    // Configura o tamanho (opcional)
+    ImGui::SetNextWindowSize(ImVec2(windowWidth, io.DisplaySize.y - 40.0f), ImGuiCond_Always);
+
+    // Flags para melhor comportamento
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | 
+                                ImGuiWindowFlags_NoResize | 
+                                ImGuiWindowFlags_NoCollapse;
+
     ImGui::Begin("Minha Primeira Janela ImGui");
 
             // Texto
