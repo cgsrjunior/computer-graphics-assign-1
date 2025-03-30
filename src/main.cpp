@@ -1,4 +1,14 @@
 #include "config.h"
+#include "gui.h"
+
+void renderClearColorGui(const ImVec4 clear_color)
+{
+    // Renderização OpenGL
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, 
+        clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 
 int main(){
     
@@ -15,15 +25,26 @@ int main(){
         return -1;
     }
 
+    Gui gui(window);
+    gui.init();
+
+
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
 
     while (!glfwWindowShouldClose(window))
     {
+
+        gui.beginFrame();
+
+        gui.createMenu();
+
+        const ImVec4 gui_color = gui.getClearColor();
+
+        renderClearColorGui(gui_color);
+
+        gui.endFrame();
         /* code */
         glfwPollEvents();
-        
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glfwSwapBuffers(window);
     }
     

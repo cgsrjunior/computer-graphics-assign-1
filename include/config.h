@@ -9,3 +9,5 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <imgui/imgui.h>
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"

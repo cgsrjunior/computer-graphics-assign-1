@@ -15,8 +15,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 
 add_executable(hello_window include/config.h
+                        include/gui.h
                         src/main.cpp
                         src/glad.c
+                        src/gui.cpp
                         # Arquivos do ImGui (ajuste os caminhos conforme sua estrutura)
                         dependencies/imgui/imgui.cpp
                         dependencies/imgui/imgui_demo.cpp
