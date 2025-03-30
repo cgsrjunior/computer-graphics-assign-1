@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "Gui.h"
 
 Gui::Gui(GLFWwindow* window):
     m_Window(window),
@@ -24,11 +24,6 @@ void Gui::init()
     // Backends do ImGui
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-    // Variáveis de exemplo para o ImGui
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    float slider_value = 0.5f;
 }
 
 void Gui::beginFrame()
