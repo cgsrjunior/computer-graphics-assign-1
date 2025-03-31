@@ -19,11 +19,12 @@ void Gui::init()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // Estilo (opcional)
     ImGui::StyleColorsDark();
     // Backends do ImGui
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplOpenGL3_Init("#version 460");
 }
 
 void Gui::beginFrame()
@@ -45,7 +46,7 @@ void Gui::createMenu()
 {
     // Obtém o tamanho da viewport
     ImGuiIO& io = ImGui::GetIO();
-    float windowWidth = 300.0f; // Largura desejada para sua janela
+    float windowWidth = 400.0f; // Largura desejada para sua janela
 
     // Configura a posição para o canto superior direito
     ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - windowWidth, 20.0f), ImGuiCond_Always);
@@ -58,7 +59,7 @@ void Gui::createMenu()
                                 ImGuiWindowFlags_NoResize | 
                                 ImGuiWindowFlags_NoCollapse;
 
-    ImGui::Begin("Minha Primeira Janela ImGui");
+    ImGui::Begin("OpenGL Visualizer Options");
 
             // Texto
             ImGui::Text("Olá, mundo com ImGui!");

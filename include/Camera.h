@@ -22,7 +22,6 @@ public:
     
     // Processa scroll do mouse (zoom)
     void ProcessMouseScroll(float yoffset);
-
     void centerOnObject(const glm::vec3& center, float radius);
 
     // Getters
@@ -48,6 +47,12 @@ public:
                          + std::to_string(Front.y) + ", " 
                          + std::to_string(Front.z) + ")";
     }
+
+    // Rotação em torno dos eixos locais
+    void rotateLocalX(float angle);
+    void rotateLocalY(float angle);
+    void rotateLocalZ(float angle);
+    void updateCameraRotationOnAxis();
 
 private:
     // Atualiza os vetores da câmera

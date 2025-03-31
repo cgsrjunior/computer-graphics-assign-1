@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <glm/gtx/string_cast.hpp>
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : 
     Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
@@ -60,7 +61,32 @@ void Camera::ProcessMouseScroll(float yoffset) {
         Zoom = 45.0f;
 }
 
-void Camera::updateCameraVectors() {
+// Implementação
+void Camera::rotateLocalX(float angle) {
+    // Roll - rotação em torno do eixo Front (Z local)
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), Front);
+    Up = glm::normalize(glm::vec3(rotation * glm::vec4(Up, 0.0f)));
+    Right = glm::cross(Front, Up); // Recalcula Right para manter ortogonalidade
+}
+
+void Camera::rotateLocalY(float angle) {
+    // Pitch - rotação em torno do eixo Right (X local)
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), Right);
+    Front = glm::normalize(glm::vec3(rotation * glm::vec4(Front, 0.0f)));
+    Up = glm::normalize(glm::cross(Right, Front)); // Mantém Up perpendicular
+}
+
+void Camera::rotateLocalZ(float angle) {
+    // Yaw - rotação em torno do eixo Up (Y local)
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), Up);
+    Front = glm::normalize(glm::vec3(rotation * glm::vec4(Front, 0.0f)));
+    Right = glm::normalize(glm::cross(Front, Up)); // Recalcula Right
+}
+
+
+// Implementações similares para Y e Z
+void Camera::updateCameraVectors()
+{
     // Calcula novo vetor Front
     glm::vec3 front;
     front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
@@ -69,6 +95,15 @@ void Camera::updateCameraVectors() {
     Front = glm::normalize(front);
     
     // Recalcula Right e Up
+    Right = glm::normalize(glm::cross(Front, WorldUp));
+    Up = glm::normalize(glm::cross(Right, Front));
+}
+
+// Implementações similares para Y e Z
+void Camera::updateCameraRotationOnAxis()
+{
+    // Garante que todos os vetores estão normalizados e ortogonais
+    Front = glm::normalize(Front);
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up = glm::normalize(glm::cross(Right, Front));
 }

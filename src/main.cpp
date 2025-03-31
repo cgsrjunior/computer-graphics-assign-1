@@ -13,6 +13,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void printBoundingBoxInfo(const Model& model);
+void drawModel(Model& model, glm::vec3 position, float scale, float rotation_angle, glm::vec3 rotation_axis ,Shader& shader);
 
 // Configurações
 const unsigned int SCR_WIDTH = 1820;
@@ -20,10 +21,12 @@ const unsigned int SCR_HEIGHT = 1020;
 
 // Câmera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+//Mouse treatment
+bool mouseRightClick = false;
 
 // Timing
 float deltaTime = 0.0f;
@@ -53,6 +56,7 @@ int main(){
     // Configura callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    //glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Cria o programa de shader
@@ -68,20 +72,22 @@ int main(){
     float cowScale = 1.0f / cowModel.getBoundingRadius();
 
     // Posições relativas
-    glm::vec3 cubePosition(0.0f, 0.0f, -2.0f);  // Cubo mais perto
-    glm::vec3 cowPosition(0.0f, 0.0f, 2.0f);    // Vaca mais longe
+    glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
+    glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
 
     // Configura a câmera para centralizar no objeto
     glm::vec3 objectCenter = cubeModel.getCenter();
     float objectRadius = -cubeModel.getBoundingRadius();
+    std::cout << "Cube Model Bounding Radius: " << objectRadius << std::endl;
     camera.centerOnObject(glm::vec3(0.0f), objectRadius);
 
     Gui gui(window);
     gui.init();
     
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
     // Configuração OpenGL
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     //glDisable(GL_CULL_FACE); // Desativa culling temporariamente
 
     while (!glfwWindowShouldClose(window))
@@ -93,14 +99,14 @@ int main(){
         // Processa entrada
         processInput(window);
         // Limpa buffers
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //GUI Render
         gui.beginFrame();
         gui.createMenu();
-        const ImVec4 gui_color = gui.getClearColor();
-        renderClearColorGui(gui_color);
+        //const ImVec4 gui_color = gui.getClearColor();
+        //renderClearColorGui(gui_color);
 
         // Ativa o shader
         ourShader.use();
@@ -117,23 +123,9 @@ int main(){
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         
-        // 1. Renderiza o cubo primeiro
-        glm::mat4 cubeModelMatrix = glm::mat4(1.0f);
-        cubeModelMatrix = glm::translate(cubeModelMatrix, cubePosition);
-        cubeModelMatrix = glm::scale(cubeModelMatrix, glm::vec3(cubeScale));
-        cubeModelMatrix = glm::rotate(cubeModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        
-        ourShader.setMat4("model", cubeModelMatrix);
-        cubeModel.Draw(ourShader);
-        
-        // 2. Renderiza a vaca depois
-        glm::mat4 cowModelMatrix = glm::mat4(1.0f);
-        cowModelMatrix = glm::translate(cowModelMatrix, cowPosition);
-        cowModelMatrix = glm::scale(cowModelMatrix, glm::vec3(cowScale));
-        cowModelMatrix = glm::rotate(cowModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        
-        ourShader.setMat4("model", cowModelMatrix);
-        cowModel.Draw(ourShader);
+        //Testing function draw
+        drawModel(cubeModel, cubePosition, cubeScale, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 0.0f, 0.0f) ,ourShader);
+        drawModel(cowModel, cowPosition, cowScale, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 0.0f, 0.0f) ,ourShader);
 
         
         gui.endFrame();
@@ -157,6 +149,7 @@ void renderClearColorGui(const ImVec4 clear_color)
 
 //Manage input processing
 void processInput(GLFWwindow* window) {
+    static float rotationSpeed = 20.0f; // graus por segundo
     static double lastPrintTime = 0.0;
     double currentTime = glfwGetTime();
     if (currentTime - lastPrintTime > 0.1) { // Limita a 10 prints por segundo
@@ -164,24 +157,73 @@ void processInput(GLFWwindow* window) {
         lastPrintTime = currentTime;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(0, deltaTime); // Frente
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(1, deltaTime); // Trás
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(2, deltaTime); // Esquerda
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(3, deltaTime); // Direita
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(4, deltaTime); // Cima
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.ProcessKeyboard(5, deltaTime); // Baixo
+    //Camera Rotation
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+    {
+        camera.rotateLocalX(rotationSpeed * deltaTime);
+        camera.updateCameraRotationOnAxis();
+    }
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+    {
+        camera.rotateLocalY(rotationSpeed * deltaTime);
+        camera.updateCameraRotationOnAxis();
+    }
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+    {
+        camera.rotateLocalZ(rotationSpeed * deltaTime);
+        camera.updateCameraRotationOnAxis();
+    }
+
+    //Check if mouse was clicked
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+    {
+        std::cout << "Menu mouse enabled" << std::endl;
+        mouseRightClick = !mouseRightClick;
+        // Alterna entre modos de cursor
+        glfwSetInputMode(window, GLFW_CURSOR, 
+            mouseRightClick ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
+
+    if(!mouseRightClick)
+    {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(0, deltaTime); // Frente
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(1, deltaTime); // Trás
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(2, deltaTime); // Esquerda
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(3, deltaTime); // Direita
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            camera.ProcessKeyboard(4, deltaTime); // Cima
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(5, deltaTime); // Baixo
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+            camera.centerOnObject(glm::vec3(0.0f), -1.73205f); // Reposition camera - Need to adjust this
+    }
 }
 
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    // Verifica clique direito
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        mouseRightClick = !mouseRightClick;
+        
+        // Alterna entre modos de cursor
+        glfwSetInputMode(window, GLFW_CURSOR, 
+            mouseRightClick ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
+}
+
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+
+    //If mouse is active, stop camera activity
+    if(mouseRightClick)
+        return;
+
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -213,4 +255,15 @@ void printBoundingBoxInfo(const Model& model) {
                             << model.getCenter().y << ", " 
                             << model.getCenter().z << ")" << std::endl;
     std::cout << "Bounding Radius: " << model.getBoundingRadius() << std::endl;
+}
+
+void drawModel(Model& model, glm::vec3 position, float scale, float rotation_angle, glm::vec3 rotation_axis ,Shader& shader)
+{
+    // Renderiza os objetos 3D carregados
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+    //modelMatrix = glm::rotate(modelMatrix, rotation_angle, rotation_axis);
+    shader.setMat4("model", modelMatrix);
+    model.Draw(shader);
 }
