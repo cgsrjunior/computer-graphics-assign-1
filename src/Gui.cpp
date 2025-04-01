@@ -4,7 +4,7 @@ Gui::Gui(GLFWwindow* window):
     m_Window(window),
     m_ShowDemoWindow(false),
     m_SliderValue(0.5f),
-    m_ClearColor(ImVec4(0.45f, 0.55f, 0.60f, 1.00f))
+    m_ClearColor(ImVec4(0.0f, 0.0f, 0.0f, 1.00f))
 {
 }
 
@@ -62,20 +62,30 @@ void Gui::createMenu()
     ImGui::Begin("OpenGL Visualizer Options");
 
             // Texto
-            ImGui::Text("Olá, mundo com ImGui!");
-            
-            // Checkbox
-            ImGui::Checkbox("Mostrar Janela de Demo", &m_ShowDemoWindow);
+            ImGui::Text("Welcome to eletric bogaloo visualizer");
             
             // Slider
-            ImGui::SliderFloat("Valor do Slider", &m_SliderValue, 0.0f, 1.0f);
+            //ImGui::SliderFloat("Valor do Slider", &m_SliderValue, 0.0f, 1.0f);
+
+            // Checkboxes
+            ImGui::Checkbox("Select Cube", &selectCube);
+            ImGui::Checkbox("Select Cow", &selectCow);
+            ImGui::Checkbox("Look At Camera", &selectLookAtCamera);
+
+            ImGui::InputFloat3("Translation XYZ", translationPos);
+            ImGui::InputFloat("Scaling Value", &scalingValue);
+            ImGui::InputFloat("Rotation Angle", &rotationAngle);
+            ImGui::InputFloat3("Rotation XYZ", rotationPos);
+
+            ImGui::InputFloat("Near Value", &nearValue);
+            ImGui::InputFloat("Far Angle", &farValue);
             
             // Botão
-            if (ImGui::Button("Botão"))
-                std::cout << "Botão pressionado! Valor do slider: " << m_SliderValue << std::endl;
+            //if (ImGui::Button("Botão"))
+            //    std::cout << "Botão pressionado! Valor do slider: " << m_SliderValue << std::endl;
             
             // Seletor de cor
-            ImGui::ColorEdit3("Cor de fundo", (float*)&m_ClearColor);
+            ImGui::ColorEdit3("Model Color", (float*)&m_ClearColor);
             
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

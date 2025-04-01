@@ -98,6 +98,14 @@ int main(){
         lastFrame = currentFrame;
         // Processa entrada
         processInput(window);
+        if(gui.getLookAtSelection())
+        {
+            processInput(window);
+            // Configura a câmera para centralizar no objeto
+            objectCenter = cubeModel.getCenter();
+            objectRadius = -cubeModel.getBoundingRadius();
+            camera.centerOnObject(objectCenter, objectRadius);
+        }
         // Limpa buffers
         glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -115,8 +123,8 @@ int main(){
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f),
             (float)SCR_WIDTH/(float)SCR_HEIGHT,
-            0.1f,
-            1000.0f  // Far plane grande para ambos objetos
+            gui.getNearValue(),
+            gui.getFarValue()  // Far plane grande para ambos objetos
         );
     
         glm::mat4 view = camera.GetViewMatrix();
@@ -124,9 +132,27 @@ int main(){
         ourShader.setMat4("view", view);
         
         //Testing function draw
-        drawModel(cubeModel, cubePosition, cubeScale, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 0.0f, 0.0f) ,ourShader);
-        drawModel(cowModel, cowPosition, cowScale, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 0.0f, 0.0f) ,ourShader);
+        if(gui.getCubeSelection())
+        {
+            float* cubeTranslation = gui.getTranslationVector();
+            glm::vec3 translationVector(cubeTranslation[0],cubeTranslation[1],cubeTranslation[2]);
+            cubeScale = gui.getScalingValue();
+            float rotationAngle = gui.getRotatingAngle();
+            float* cubeRotation = gui.getRotationVector();
+            glm::vec3 rotationVector(cubeRotation[0],cubeRotation[1],cubeRotation[2]);
+            drawModel(cubeModel, translationVector, cubeScale, glfwGetTime() * 0.5f, rotationVector ,ourShader);
+        }
 
+        if(gui.getCowSelection())
+        {
+            float* cowTranslation = gui.getTranslationVector();
+            glm::vec3 translationVector(cowTranslation[0],cowTranslation[1],cowTranslation[2]);
+            cowScale = gui.getScalingValue();
+            float rotationAngle = gui.getRotatingAngle();
+            float* cowRotation = gui.getRotationVector();
+            glm::vec3 rotationVector(cowRotation[0],cowRotation[1],cowRotation[2]);
+            drawModel(cowModel, translationVector, cowScale, rotationAngle, rotationVector ,ourShader);
+        }
         
         gui.endFrame();
 
