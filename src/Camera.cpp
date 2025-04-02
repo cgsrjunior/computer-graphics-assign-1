@@ -61,12 +61,15 @@ void Camera::ProcessMouseScroll(float yoffset) {
         Zoom = 45.0f;
 }
 
-// Implementação
 void Camera::rotateLocalX(float angle) {
     // Roll - rotação em torno do eixo Front (Z local)
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angle), Front);
+    // Aplica a rotação aos vetores Right e Up
+    Right = glm::normalize(glm::vec3(rotation * glm::vec4(Right, 0.0f)));
     Up = glm::normalize(glm::vec3(rotation * glm::vec4(Up, 0.0f)));
-    Right = glm::cross(Front, Up); // Recalcula Right para manter ortogonalidade
+    // Garante ortogonalidade (opcional, mas recomendado)
+    Up = glm::normalize(glm::cross(Front, Right));
+    Right = glm::normalize(glm::cross(Up, Front));
 }
 
 void Camera::rotateLocalY(float angle) {

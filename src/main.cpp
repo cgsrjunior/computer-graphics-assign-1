@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Model.h"
 #include "Camera.h"
+#include <glm/gtc/type_ptr.hpp>
     
 
 //Prototipos
@@ -10,6 +11,7 @@ void renderClearColorGui(const ImVec4 clear_color);
 unsigned int createShaderProgram(const char* vertexSource, const char* fragmentSource);
 unsigned int compileShader(unsigned int type, const char* source);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void printBoundingBoxInfo(const Model& model);
@@ -54,6 +56,7 @@ int main(){
     camera.SetUp(glm::vec3(0.0f, 1.0f, 0.0f));      // Vetor up padrão
 
     // Configura callbacks
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     //glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -110,6 +113,28 @@ int main(){
         glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        if(gui.getSolidSelection())
+            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
+        if(gui.getWireframeSelection())
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+        if(gui.getPointSelection())
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+        if(gui.getCcwSelection())
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CCW);
+        }
+        if(gui.getCwSelection())
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CW);
+        }
+
         //GUI Render
         gui.beginFrame();
         gui.createMenu();
@@ -118,6 +143,9 @@ int main(){
 
         // Ativa o shader
         ourShader.use();
+
+        glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
+        glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
         // Configurações comuns a ambos os modelos
         glm::mat4 projection = glm::perspective(
@@ -134,12 +162,14 @@ int main(){
         //Testing function draw
         if(gui.getCubeSelection())
         {
-            float* cubeTranslation = gui.getTranslationVector();
+            float* cubeTranslation = gui.getTranslationVectorCube();
             glm::vec3 translationVector(cubeTranslation[0],cubeTranslation[1],cubeTranslation[2]);
-            cubeScale = gui.getScalingValue();
+            cubeScale = gui.getScalingValue() / cubeModel.getBoundingRadius();;
             float rotationAngle = gui.getRotatingAngle();
-            float* cubeRotation = gui.getRotationVector();
-            glm::vec3 rotationVector(cubeRotation[0],cubeRotation[1],cubeRotation[2]);
+            bool rotationXaxis = gui.getRotationXAxis();
+            bool rotationYaxis = gui.getRotationYAxis();
+            bool rotationZaxis = gui.getRotationZAxis();
+            glm::vec3 rotationVector(rotationXaxis ? 1 : 0, rotationYaxis ? 1: 0, rotationZaxis ? 1 : 0);
             drawModel(cubeModel, translationVector, cubeScale, glfwGetTime() * 0.5f, rotationVector ,ourShader);
         }
 
@@ -147,10 +177,12 @@ int main(){
         {
             float* cowTranslation = gui.getTranslationVector();
             glm::vec3 translationVector(cowTranslation[0],cowTranslation[1],cowTranslation[2]);
-            cowScale = gui.getScalingValue();
+            cowScale = gui.getScalingValue() / cowModel.getBoundingRadius();;
             float rotationAngle = gui.getRotatingAngle();
-            float* cowRotation = gui.getRotationVector();
-            glm::vec3 rotationVector(cowRotation[0],cowRotation[1],cowRotation[2]);
+            bool rotationXaxis = gui.getRotationXAxis();
+            bool rotationYaxis = gui.getRotationYAxis();
+            bool rotationZaxis = gui.getRotationZAxis();
+            glm::vec3 rotationVector(rotationXaxis ? 1 : 0, rotationYaxis ? 1: 0, rotationZaxis ? 1 : 0);
             drawModel(cowModel, translationVector, cowScale, rotationAngle, rotationVector ,ourShader);
         }
         
@@ -187,7 +219,7 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
     {
         camera.rotateLocalX(rotationSpeed * deltaTime);
-        camera.updateCameraRotationOnAxis();
+        //camera.updateCameraRotationOnAxis();
     }
     if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
     {
@@ -201,19 +233,18 @@ void processInput(GLFWwindow* window) {
     }
 
     //Check if mouse was clicked
-    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
         std::cout << "Menu mouse enabled" << std::endl;
-        mouseRightClick = !mouseRightClick;
+        mouseRightClick = true;
         // Alterna entre modos de cursor
-        glfwSetInputMode(window, GLFW_CURSOR, 
-            mouseRightClick ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
-    if(!mouseRightClick)
+    if(mouseRightClick)
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
+        glfwSetWindowShouldClose(window, true);
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             camera.ProcessKeyboard(0, deltaTime); // Frente
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -233,13 +264,21 @@ void processInput(GLFWwindow* window) {
 
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // Verifica clique direito
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        mouseRightClick = !mouseRightClick;
-        
+    if( (button==GLFW_MOUSE_BUTTON_RIGHT) && (action == GLFW_PRESS) )
+    {
+        // ... some code
+        std::cout << "Menu mouse disabled" << std::endl;
+        mouseRightClick = true;
         // Alterna entre modos de cursor
-        glfwSetInputMode(window, GLFW_CURSOR, 
-            mouseRightClick ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    } 
+    else if( (button==GLFW_MOUSE_BUTTON_RIGHT) && (action == GLFW_RELEASE))
+    {
+        // ... some code
+        std::cout << "Menu mouse enabled" << std::endl;
+        mouseRightClick = false;
+        // Alterna entre modos de cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
 
@@ -247,7 +286,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     //If mouse is active, stop camera activity
-    if(mouseRightClick)
+    if(!mouseRightClick)
         return;
 
     if (firstMouse) {

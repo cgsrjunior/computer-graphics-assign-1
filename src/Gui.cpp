@@ -72,10 +72,20 @@ void Gui::createMenu()
             ImGui::Checkbox("Select Cow", &selectCow);
             ImGui::Checkbox("Look At Camera", &selectLookAtCamera);
 
+            ImGui::Checkbox("Solid", &selectSolid);
+            ImGui::Checkbox("Wireframe", &selectWireframe);
+            ImGui::Checkbox("Point", &selectPoint);
+
+            ImGui::Checkbox("CCW", &selectCcw);
+            ImGui::Checkbox("CW", &selectCw);
+
             ImGui::InputFloat3("Translation XYZ", translationPos);
             ImGui::InputFloat("Scaling Value", &scalingValue);
+
             ImGui::InputFloat("Rotation Angle", &rotationAngle);
-            ImGui::InputFloat3("Rotation XYZ", rotationPos);
+            ImGui::Checkbox("Rotation X", &rotationXaxis);
+            ImGui::Checkbox("Rotation Y", &rotationYaxis);
+            ImGui::Checkbox("Rotation Z", &rotationZaxis);
 
             ImGui::InputFloat("Near Value", &nearValue);
             ImGui::InputFloat("Far Angle", &farValue);
