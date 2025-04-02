@@ -54,11 +54,8 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
 }
 
 void Camera::ProcessMouseScroll(float yoffset) {
-    Zoom -= yoffset;
-    if (Zoom < 1.0f)
-        Zoom = 1.0f;
-    if (Zoom > 45.0f)
-        Zoom = 45.0f;
+    radius -= yoffset * Zoom;
+    radius = glm::clamp(radius, 2.0f, 50.0f); // Limita distância mín/máx
 }
 
 void Camera::rotateLocalX(float angle) {
@@ -127,4 +124,15 @@ void Camera::centerOnObject(const glm::vec3& center, float radius) {
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     
     updateCameraVectors();
+}
+
+glm::mat4 Camera::GetViewMatrix(glm::vec3 targetPos) {
+    // Converte yaw/pitch para coordenadas esféricas
+    glm::vec3 cameraPos;
+    cameraPos.x = targetPos.x + radius * cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    cameraPos.y = targetPos.y + radius * sin(glm::radians(Pitch));
+    cameraPos.z = targetPos.z + radius * sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+
+    // Atualiza a matriz de visualização
+    return glm::lookAt(cameraPos, targetPos, glm::vec3(0.0f, 1.0f, 0.0f));
 }

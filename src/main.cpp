@@ -60,7 +60,7 @@ int main(){
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     //glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // Cria o programa de shader
     Shader ourShader("src/shader_vertex.glsl", "src/shader_fragment.glsl");
@@ -155,7 +155,12 @@ int main(){
             gui.getFarValue()  // Far plane grande para ambos objetos
         );
     
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view;
+        if(gui.getLookAtSelection())
+            view = camera.GetViewMatrix(cubeModel.getCenter());
+        else
+            view = camera.GetViewMatrix();
+
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         
@@ -170,7 +175,7 @@ int main(){
             bool rotationYaxis = gui.getRotationYAxis();
             bool rotationZaxis = gui.getRotationZAxis();
             glm::vec3 rotationVector(rotationXaxis ? 1 : 0, rotationYaxis ? 1: 0, rotationZaxis ? 1 : 0);
-            drawModel(cubeModel, translationVector, cubeScale, glfwGetTime() * 0.5f, rotationVector ,ourShader);
+            drawModel(cubeModel, translationVector, cubeScale, rotationAngle * 2, rotationVector ,ourShader);
         }
 
         if(gui.getCowSelection())

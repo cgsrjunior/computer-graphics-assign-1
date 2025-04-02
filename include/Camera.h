@@ -13,6 +13,7 @@ public:
     
     // Retorna a matriz view calculada
     glm::mat4 GetViewMatrix();
+    glm::mat4 GetViewMatrix(glm::vec3 targetPos);
     
     // Processa entrada do teclado
     void ProcessKeyboard(int direction, float deltaTime);
@@ -53,6 +54,7 @@ public:
     void rotateLocalY(float angle);
     void rotateLocalZ(float angle);
     void updateCameraRotationOnAxis();
+    void UpdateCameraPosition(glm::vec3 targetPos);
 
 private:
     // Atualiza os vetores da câmera
@@ -67,7 +69,8 @@ private:
     
     // Ângulos de Euler
     float Yaw;
-    float Pitch;
+    float Pitch = 30.0f;
+    float radius = 5.0f; // Distância fixa entre câmera e objeto
     
     // Opções da câmera
     float MovementSpeed;
