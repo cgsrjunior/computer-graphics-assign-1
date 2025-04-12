@@ -46,7 +46,7 @@ void Gui::createMenu()
 {
     // Obtém o tamanho da viewport
     ImGuiIO& io = ImGui::GetIO();
-    float windowWidth = 400.0f; // Largura desejada para sua janela
+    float windowWidth = 650.0f; // Largura desejada para sua janela
 
     // Configura a posição para o canto superior direito
     ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - windowWidth, 20.0f), ImGuiCond_Always);
@@ -79,10 +79,31 @@ void Gui::createMenu()
             ImGui::Checkbox("CCW", &selectCcw);
             ImGui::Checkbox("CW", &selectCw);
 
-            ImGui::InputFloat3("Translation XYZ", translationPos);
-            ImGui::InputFloat("Scaling Value", &scalingValue);
+            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f); // Largura dos campos
+            ImGui::InputFloat("X", &translationPos[0], 0.1f, 1.0f, "%.2f");
+            ImGui::SameLine();
+            ImGui::InputFloat("Y", &translationPos[1], 0.1f, 1.0f, "%.2f");
+            ImGui::SameLine();
+            ImGui::InputFloat("Z", &translationPos[2], 0.1f, 1.0f, "%.2f");
+            ImGui::PopItemWidth();
 
-            ImGui::InputFloat("Rotation Angle", &rotationAngle);
+            ImGui::InputFloat(
+                "Scaling Value",  // Rótulo
+                &scalingValue,    // Variável float
+                0.01f,           // Step (incremento/decremento de 0.01)
+                0.1f,            // Step rápido (Shift + clique)
+                "%.2f"           // Formato (2 casas decimais)
+            );
+
+            ImGui::InputFloat(
+                "Rotation Angle",  // Rótulo
+                &rotationAngle,    // Variável de referência (float)
+                0.1f,             // Step (incremento/decremento ao clicar nas setas)
+                1.0f,             // Step rápido (quando segurar Shift)
+                "%.1f",           // Formato (1 casa decimal)
+                ImGuiInputTextFlags_None // Flags adicionais (opcional)
+            );
+
             ImGui::Checkbox("Rotation X", &rotationXaxis);
             ImGui::Checkbox("Rotation Y", &rotationYaxis);
             ImGui::Checkbox("Rotation Z", &rotationZaxis);

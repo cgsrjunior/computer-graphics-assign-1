@@ -177,7 +177,7 @@ int main(){
             float rotationYaxis = gui.getRotationYAxis();
             float rotationZaxis = gui.getRotationZAxis();
             glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
-            std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
+            //std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
             drawModel(cubeModel, translationVector, cubeScale, rotationAngle, rotationVector ,ourShader);
         }
 
@@ -191,7 +191,7 @@ int main(){
             float rotationYaxis = gui.getRotationYAxis();
             float rotationZaxis = gui.getRotationZAxis();
             glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
-            std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
+            //std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
             drawModel(cowModel, translationVector, cowScale, rotationAngle, rotationVector ,ourShader);
         }
         
