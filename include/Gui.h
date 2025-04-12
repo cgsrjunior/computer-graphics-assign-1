@@ -22,9 +22,9 @@ public:
     inline float* getTranslationVectorCube() {  return translationPosCube;  };
     inline float  getScalingValue() {  return scalingValue;  };
     inline float  getRotatingAngle() {  return rotationAngle;  };
-    inline float getRotationXAxis() {  return rotationXaxis;  };
-    inline float getRotationYAxis() {  return rotationYaxis;  };
-    inline float getRotationZAxis() {  return rotationZaxis;  };
+    inline float  getRotationXAxis() {  if (rotationXaxis) return 1; else return 0;  };
+    inline float  getRotationYAxis() {  if (rotationYaxis) return 1; else return 0;  };
+    inline float  getRotationZAxis() {  if (rotationZaxis) return 1; else return 0;  };
 
     inline bool getCubeSelection() { return selectCube; };
     inline bool getCowSelection() { return selectCow; };

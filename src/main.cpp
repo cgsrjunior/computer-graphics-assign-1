@@ -143,7 +143,9 @@ int main(){
 
         // Ativa o shader
         ourShader.use();
-
+        //std::cout << "R Color: " << gui.getRcolor() << std::endl;
+        //std::cout << "G Color: " << gui.getGcolor() << std::endl;
+        //std::cout << "B Color: " << gui.getBcolor() << std::endl;
         glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
@@ -171,11 +173,12 @@ int main(){
             glm::vec3 translationVector(cubeTranslation[0],cubeTranslation[1],cubeTranslation[2]);
             cubeScale = gui.getScalingValue() / cubeModel.getBoundingRadius();;
             float rotationAngle = gui.getRotatingAngle();
-            bool rotationXaxis = gui.getRotationXAxis();
-            bool rotationYaxis = gui.getRotationYAxis();
-            bool rotationZaxis = gui.getRotationZAxis();
-            glm::vec3 rotationVector(rotationXaxis ? 1 : 0, rotationYaxis ? 1: 0, rotationZaxis ? 1 : 0);
-            drawModel(cubeModel, translationVector, cubeScale, rotationAngle * 2, rotationVector ,ourShader);
+            float rotationXaxis = gui.getRotationXAxis();
+            float rotationYaxis = gui.getRotationYAxis();
+            float rotationZaxis = gui.getRotationZAxis();
+            glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
+            std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
+            drawModel(cubeModel, translationVector, cubeScale, rotationAngle, rotationVector ,ourShader);
         }
 
         if(gui.getCowSelection())
@@ -184,10 +187,11 @@ int main(){
             glm::vec3 translationVector(cowTranslation[0],cowTranslation[1],cowTranslation[2]);
             cowScale = gui.getScalingValue() / cowModel.getBoundingRadius();;
             float rotationAngle = gui.getRotatingAngle();
-            bool rotationXaxis = gui.getRotationXAxis();
-            bool rotationYaxis = gui.getRotationYAxis();
-            bool rotationZaxis = gui.getRotationZAxis();
-            glm::vec3 rotationVector(rotationXaxis ? 1 : 0, rotationYaxis ? 1: 0, rotationZaxis ? 1 : 0);
+            float rotationXaxis = gui.getRotationXAxis();
+            float rotationYaxis = gui.getRotationYAxis();
+            float rotationZaxis = gui.getRotationZAxis();
+            glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
+            std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
             drawModel(cowModel, translationVector, cowScale, rotationAngle, rotationVector ,ourShader);
         }
         
@@ -333,7 +337,7 @@ void drawModel(Model& model, glm::vec3 position, float scale, float rotation_ang
     glm::mat4 modelMatrix = glm::mat4(1.0f);
     modelMatrix = glm::translate(modelMatrix, position);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
-    //modelMatrix = glm::rotate(modelMatrix, rotation_angle, rotation_axis);
+    modelMatrix = glm::rotate(modelMatrix, rotation_angle, rotation_axis);
     shader.setMat4("model", modelMatrix);
     model.Draw(shader);
 }
