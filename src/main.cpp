@@ -16,6 +16,9 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void printBoundingBoxInfo(const Model& model);
 void drawModel(Model& model, glm::vec3 position, float scale, float rotation_angle, glm::vec3 rotation_axis ,Shader& shader);
+void debugColor(const int& rcolor, const int& gcolor, const int& bcolor);
+void debugVector(const glm::vec3 vector);
+void settingModelAndDraw(Model& model, Gui& gui ,Shader& shader);
 
 // Configurações
 const unsigned int SCR_WIDTH = 1820;
@@ -138,14 +141,10 @@ int main(){
         //GUI Render
         gui.beginFrame();
         gui.createMenu();
-        //const ImVec4 gui_color = gui.getClearColor();
-        //renderClearColorGui(gui_color);
 
         // Ativa o shader
         ourShader.use();
-        //std::cout << "R Color: " << gui.getRcolor() << std::endl;
-        //std::cout << "G Color: " << gui.getGcolor() << std::endl;
-        //std::cout << "B Color: " << gui.getBcolor() << std::endl;
+
         glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
@@ -159,7 +158,9 @@ int main(){
     
         glm::mat4 view;
         if(gui.getLookAtSelection())
+        {
             view = camera.GetViewMatrix(cubeModel.getCenter());
+        }
         else
             view = camera.GetViewMatrix();
 
@@ -169,30 +170,12 @@ int main(){
         //Testing function draw
         if(gui.getCubeSelection())
         {
-            float* cubeTranslation = gui.getTranslationVectorCube();
-            glm::vec3 translationVector(cubeTranslation[0],cubeTranslation[1],cubeTranslation[2]);
-            cubeScale = gui.getScalingValue() / cubeModel.getBoundingRadius();;
-            float rotationAngle = gui.getRotatingAngle();
-            float rotationXaxis = gui.getRotationXAxis();
-            float rotationYaxis = gui.getRotationYAxis();
-            float rotationZaxis = gui.getRotationZAxis();
-            glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
-            //std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
-            drawModel(cubeModel, translationVector, cubeScale, rotationAngle, rotationVector ,ourShader);
+            settingModelAndDraw(cubeModel, gui, ourShader);
         }
 
         if(gui.getCowSelection())
         {
-            float* cowTranslation = gui.getTranslationVector();
-            glm::vec3 translationVector(cowTranslation[0],cowTranslation[1],cowTranslation[2]);
-            cowScale = gui.getScalingValue() / cowModel.getBoundingRadius();;
-            float rotationAngle = gui.getRotatingAngle();
-            float rotationXaxis = gui.getRotationXAxis();
-            float rotationYaxis = gui.getRotationYAxis();
-            float rotationZaxis = gui.getRotationZAxis();
-            glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
-            //std::cout << "Rotation Vector: " << rotationVector.x << " " << rotationVector.y << " " << rotationVector.z << std::endl;
-            drawModel(cowModel, translationVector, cowScale, rotationAngle, rotationVector ,ourShader);
+            settingModelAndDraw(cowModel, gui, ourShader);
         }
         
         gui.endFrame();
@@ -340,4 +323,31 @@ void drawModel(Model& model, glm::vec3 position, float scale, float rotation_ang
     modelMatrix = glm::rotate(modelMatrix, rotation_angle, rotation_axis);
     shader.setMat4("model", modelMatrix);
     model.Draw(shader);
+}
+
+void debugColor(const int &rcolor, const int &gcolor, const int &bcolor)
+{
+    std::cout << "R Color: " << rcolor << std::endl;
+    std::cout << "G Color: " << gcolor << std::endl;
+    std::cout << "B Color: " << bcolor << std::endl;
+}
+
+void debugVector(const glm::vec3 vector)
+{
+    std::cout << "Vector: " << vector.x << 
+                        " " << vector.y <<
+                        " " << vector.z << std::endl;
+}
+
+void settingModelAndDraw(Model &model, Gui& gui, Shader &shader)
+{
+    float* modelTransalation = gui.getTranslationVector();
+    glm::vec3 translationVector(modelTransalation[0],modelTransalation[1],modelTransalation[2]);
+    float modelScale = gui.getScalingValue() / model.getBoundingRadius();;
+    float rotationAngle = gui.getRotatingAngle();
+    float rotationXaxis = gui.getRotationXAxis();
+    float rotationYaxis = gui.getRotationYAxis();
+    float rotationZaxis = gui.getRotationZAxis();
+    glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
+    drawModel(model, translationVector, modelScale, rotationAngle, rotationVector, shader);
 }

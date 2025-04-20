@@ -19,7 +19,6 @@ public:
 
     //Getters
     inline float* getTranslationVector() {  return translationPos;  };
-    inline float* getTranslationVectorCube() {  return translationPosCube;  };
     inline float  getScalingValue() {  return scalingValue;  };
     inline float  getRotatingAngle() {  return rotationAngle;  };
     inline float  getRotationXAxis() {  if (rotationXaxis) return 1; else return 0;  };
@@ -28,6 +27,9 @@ public:
 
     inline bool getCubeSelection() { return selectCube; };
     inline bool getCowSelection() { return selectCow; };
+    inline bool getCubeTranslation() { return translateCube; };
+    inline bool getCowTranslation() { return translateCow; };
+
     inline bool getLookAtSelection() { return selectLookAtCamera; };
     inline bool getWireframeSelection() { return selectWireframe; };
     inline bool getPointSelection() { return selectPoint; };
@@ -39,6 +41,7 @@ public:
     inline float getRcolor() { return m_ClearColor.x; }; 
     inline float getGcolor() { return m_ClearColor.y; };
     inline float getBcolor() { return m_ClearColor.z; };
+    inline int getGlSelected() { return glSelected; };
 
 private:
     GLFWwindow* m_Window;
@@ -48,6 +51,8 @@ private:
     //Need two bools, to select the cow or the cube and send to them the transformations
     bool selectCube = true;
     bool selectCow = false;
+    bool translateCube = true;
+    bool translateCow = false;
     bool selectLookAtCamera = false;
     bool selectSolid = true;
     bool selectWireframe = false;
@@ -69,6 +74,8 @@ private:
 
     float nearValue=1;
     float farValue=1000;
+
+    int glSelected = 0;
 
 
     ImVec4 m_ClearColor;

@@ -64,21 +64,42 @@ void Gui::createMenu()
             // Texto
             ImGui::Text("Welcome to eletric bogaloo visualizer");
             
-            // Slider
-            //ImGui::SliderFloat("Valor do Slider", &m_SliderValue, 0.0f, 1.0f);
+            ImGui::Text("Graphic API Options Avaliable: ");
+            ImGui::RadioButton("OpenGL", &glSelected, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Close2GL", &glSelected, 1);
+            ImGui::Separator();
+            ImGui::Spacing();
 
-            // Checkboxes
-            ImGui::Checkbox("Select Cube", &selectCube);
-            ImGui::Checkbox("Select Cow", &selectCow);
+            // Base Model Checkbox options
+            ImGui::Text("Models to Display: ");
+            ImGui::Checkbox("Display Cube", &selectCube);
+            ImGui::SameLine();
+            ImGui::Checkbox("Display Cow", &selectCow);
+            ImGui::Spacing();
+            
+            //Camera Settings
+            ImGui::Text("Camera Settings: ");
             ImGui::Checkbox("Look At Camera", &selectLookAtCamera);
+            ImGui::Spacing();
 
+            ImGui::Text("Object Material Rendering Mode: ");
             ImGui::Checkbox("Solid", &selectSolid);
             ImGui::Checkbox("Wireframe", &selectWireframe);
             ImGui::Checkbox("Point", &selectPoint);
+            ImGui::Spacing();
 
+            ImGui::Text("Triangle Vertexes Orientation: ");
             ImGui::Checkbox("CCW", &selectCcw);
             ImGui::Checkbox("CW", &selectCw);
-
+            ImGui::Spacing();
+            
+            // Base Model Checkbox options
+            ImGui::Text("Translation Options: ");
+            ImGui::Checkbox("Translate Cube", &translateCube);
+            ImGui::SameLine();
+            ImGui::Checkbox("Translate Cow", &translateCow);
+            ImGui::Spacing();
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f); // Largura dos campos
             ImGui::InputFloat("X", &translationPos[0], 0.1f, 1.0f, "%.2f");
             ImGui::SameLine();
@@ -86,6 +107,7 @@ void Gui::createMenu()
             ImGui::SameLine();
             ImGui::InputFloat("Z", &translationPos[2], 0.1f, 1.0f, "%.2f");
             ImGui::PopItemWidth();
+            ImGui::Spacing();
 
             ImGui::InputFloat(
                 "Scaling Value",  // Rótulo
@@ -94,6 +116,7 @@ void Gui::createMenu()
                 0.1f,            // Step rápido (Shift + clique)
                 "%.2f"           // Formato (2 casas decimais)
             );
+            ImGui::Spacing();
 
             ImGui::InputFloat(
                 "Rotation Angle",  // Rótulo
@@ -103,17 +126,17 @@ void Gui::createMenu()
                 "%.1f",           // Formato (1 casa decimal)
                 ImGuiInputTextFlags_None // Flags adicionais (opcional)
             );
+            ImGui::Spacing();
 
             ImGui::Checkbox("Rotation X", &rotationXaxis);
+            ImGui::SameLine();
             ImGui::Checkbox("Rotation Y", &rotationYaxis);
+            ImGui::SameLine();
             ImGui::Checkbox("Rotation Z", &rotationZaxis);
+            ImGui::Spacing();
 
             ImGui::InputFloat("Near Value", &nearValue);
             ImGui::InputFloat("Far Angle", &farValue);
-            
-            // Botão
-            //if (ImGui::Button("Botão"))
-            //    std::cout << "Botão pressionado! Valor do slider: " << m_SliderValue << std::endl;
             
             // Seletor de cor
             ImGui::ColorEdit3("Model Color", (float*)&m_ClearColor);
