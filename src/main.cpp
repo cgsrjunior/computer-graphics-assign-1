@@ -109,8 +109,9 @@ int main(){
         processInput(window);
         //First we need to check if the model is loaded,
         //setup the files and after that, enable a flag to allow us to work on
-        if(gui.isModelSelected() && !finishedObjectLoaded)
+        if(gui.isModelSelected())
         {
+            currentModel = Model();
             std::cout << "Path: " << gui.getModelPath() << std::endl;
             currentModel.loadModelFromFile(gui.getModelPath());
             objectScale = 1.0f / currentModel.getBoundingRadius();
@@ -121,6 +122,7 @@ int main(){
             std::cout << "Model Bounding Radius: " << objectRadius << std::endl;
             camera.centerOnObject(glm::vec3(0.0f), objectRadius);
             finishedObjectLoaded = true;
+            gui.resetModelSelected();
         }
 
 

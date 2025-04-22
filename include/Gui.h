@@ -45,6 +45,7 @@ public:
     inline int getGlSelected() { return glSelected; };
     inline std::string getModelPath() { return completePath; };
     inline bool isModelSelected() { return modelSelected; };
+    inline void resetModelSelected() { modelSelected = false; };
 
     //Public variables
     std::string currentPath = std::filesystem::current_path().string();
