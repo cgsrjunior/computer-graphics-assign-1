@@ -3,6 +3,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <iostream>
+#include <filesystem>
+
 
 class Gui
 {
@@ -14,7 +16,6 @@ public:
     void beginFrame();
     void endFrame();
     void createMenu();
-    void renderGL();
     inline ImVec4 getClearColor() { return m_ClearColor; };
 
     //Getters
@@ -42,11 +43,21 @@ public:
     inline float getGcolor() { return m_ClearColor.y; };
     inline float getBcolor() { return m_ClearColor.z; };
     inline int getGlSelected() { return glSelected; };
+    inline std::string getModelPath() { return completePath; };
+    inline bool isModelSelected() { return modelSelected; };
+
+    //Public variables
+    std::string currentPath = std::filesystem::current_path().string();
+    bool showFileDialog = false;          // Controle para mostrar/ocultar o diálogo
+    bool modelSelected = false;             // Flag para indicar se um modelo foi carregado
+    std::string selectedFile = "";    // Nome do modelo atual
 
 private:
     GLFWwindow* m_Window;
     bool m_ShowDemoWindow;
     float m_SliderValue;
+
+    std::string completePath = std::filesystem::current_path().string();
 
     //Need two bools, to select the cow or the cube and send to them the transformations
     bool selectCube = true;
@@ -59,7 +70,6 @@ private:
     bool selectPoint = false;
     bool selectCcw = true;
     bool selectCw = false;
-
     //void drawModel(Model& model, glm::vec3 position, float scale, float rotation_angle, glm::vec3 rotation_axis ,Shader& shader)
     // Posições relativas
     //glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
@@ -71,12 +81,9 @@ private:
     bool rotationXaxis = true;
     bool rotationYaxis = false;
     bool rotationZaxis = false;
-
+    bool showFileBrowser = false;
     float nearValue=1;
     float farValue=1000;
-
     int glSelected = 0;
-
-
     ImVec4 m_ClearColor;
 };

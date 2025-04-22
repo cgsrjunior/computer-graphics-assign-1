@@ -4,7 +4,12 @@
 #include <sstream>
 #include <iostream>
 
-Model::Model(const std::string& filepath) {
+Model::Model() : meshes()
+{
+}
+
+Model::Model(const std::string &filepath)
+{
     loadModel(filepath);
 }
 

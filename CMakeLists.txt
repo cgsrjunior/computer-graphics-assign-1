@@ -19,29 +19,42 @@ set(MODELS_DIR "${CMAKE_SOURCE_DIR}/models")
 # Copia os shaders para o diretório de build
 file(COPY src/shader_vertex.glsl src/shader_fragment.glsl DESTINATION ${CMAKE_BINARY_DIR})
 
-add_executable(hello_window include/config.h
-                        include/Vertex.h
-                        include/Material.h
-                        include/Mesh.h
-                        include/Model.h
-                        include/Gui.h
-                        include/Shader.h
-                        include/Camera.h
-                        src/main.cpp
-                        src/glad.c
-                        src/Gui.cpp
-                        src/Mesh.cpp
-                        src/Model.cpp
-                        src/Shader.cpp
-                        src/Camera.cpp
-                        # Arquivos do ImGui (ajuste os caminhos conforme sua estrutura)
-                        dependencies/imgui/imgui.cpp
-                        dependencies/imgui/imgui_demo.cpp
-                        dependencies/imgui/imgui_draw.cpp
-                        dependencies/imgui/imgui_tables.cpp
-                        dependencies/imgui/imgui_widgets.cpp
-                        dependencies/imgui/backends/imgui_impl_glfw.cpp
-                        dependencies/imgui/backends/imgui_impl_opengl3.cpp
+# 1. Primeiro declare todos os arquivos do ImGui como uma variável
+set(INCLUDE_FILES
+    include/config.h
+    include/Vertex.h
+    include/Material.h
+    include/Mesh.h
+    include/Model.h
+    include/Gui.h
+    include/Shader.h
+    include/Camera.h
+)
+
+set(SRC_FILES
+    src/main.cpp
+    src/glad.c
+    src/Gui.cpp
+    src/Mesh.cpp
+    src/Model.cpp
+    src/Shader.cpp
+    src/Camera.cpp
+)
+
+set(IMGUI_SOURCES
+    dependencies/imgui/imgui.cpp
+    dependencies/imgui/imgui_demo.cpp
+    dependencies/imgui/imgui_draw.cpp
+    dependencies/imgui/imgui_tables.cpp
+    dependencies/imgui/imgui_widgets.cpp
+    dependencies/imgui/backends/imgui_impl_glfw.cpp
+    dependencies/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+add_executable(hello_window 
+                        ${INCLUDE_FILES}
+                        ${SRC_FILES}
+                        ${IMGUI_SOURCES}  # Adiciona aqui ao invés de listar individualmente
                         )
 
 target_include_directories(hello_window PRIVATE 
@@ -51,7 +64,8 @@ target_include_directories(hello_window PRIVATE
                                         dependencies/imgui/backends
                                         )
 
-target_link_libraries(hello_window  glfw
-                                    OpenGL::GL
-                                    glm::glm
-                                    )
+
+target_link_libraries(hello_window      glfw
+                                        OpenGL::GL
+                                        glm::glm
+                                        )

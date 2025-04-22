@@ -67,25 +67,28 @@ int main(){
 
     // Cria o programa de shader
     Shader ourShader("src/shader_vertex.glsl", "src/shader_fragment.glsl");
-    Model cubeModel("models/cube.in");
-    Model cowModel("models/cow_up.in");
-
-    printBoundingBoxInfo(cubeModel);
-    printBoundingBoxInfo(cowModel);
+    //Model cubeModel("models/cube.in");
+    //Model cowModel("models/cow_up.in");
+    Model currentModel;
+    float objectScale;
+    glm::vec3 objectPosition;
+    glm::vec3 objectCenter;
+    float objectRadius;
+    bool finishedObjectLoaded = false;
 
     // Normaliza as escalas
-    float cubeScale = 1.0f / cubeModel.getBoundingRadius();
-    float cowScale = 1.0f / cowModel.getBoundingRadius();
+    //float cubeScale = 1.0f / cubeModel.getBoundingRadius();
+    //float cowScale = 1.0f / cowModel.getBoundingRadius();
 
     // Posições relativas
-    glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
-    glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
+    //glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
+    //glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
 
     // Configura a câmera para centralizar no objeto
-    glm::vec3 objectCenter = cubeModel.getCenter();
-    float objectRadius = -cubeModel.getBoundingRadius();
-    std::cout << "Cube Model Bounding Radius: " << objectRadius << std::endl;
-    camera.centerOnObject(glm::vec3(0.0f), objectRadius);
+    //glm::vec3 objectCenter = cubeModel.getCenter();
+    //float objectRadius = -cubeModel.getBoundingRadius();
+    //std::cout << "Cube Model Bounding Radius: " << objectRadius << std::endl;
+    //camera.centerOnObject(glm::vec3(0.0f), objectRadius);
 
     Gui gui(window);
     gui.init();
@@ -104,12 +107,29 @@ int main(){
         lastFrame = currentFrame;
         // Processa entrada
         processInput(window);
-        if(gui.getLookAtSelection())
+        //First we need to check if the model is loaded,
+        //setup the files and after that, enable a flag to allow us to work on
+        if(gui.isModelSelected() && !finishedObjectLoaded)
+        {
+            std::cout << "Path: " << gui.getModelPath() << std::endl;
+            currentModel.loadModelFromFile(gui.getModelPath());
+            objectScale = 1.0f / currentModel.getBoundingRadius();
+            objectPosition = glm::vec3(0.0f, -1.0f, 2.0f);
+            // Configura a câmera para centralizar no objeto
+            glm::vec3 objectCenter = currentModel.getCenter();
+            float objectRadius = -currentModel.getBoundingRadius();
+            std::cout << "Model Bounding Radius: " << objectRadius << std::endl;
+            camera.centerOnObject(glm::vec3(0.0f), objectRadius);
+            finishedObjectLoaded = true;
+        }
+
+
+        if(gui.getLookAtSelection() && finishedObjectLoaded)
         {
             processInput(window);
             // Configura a câmera para centralizar no objeto
-            objectCenter = cubeModel.getCenter();
-            objectRadius = -cubeModel.getBoundingRadius();
+            objectCenter = currentModel.getCenter();
+            objectRadius = -currentModel.getBoundingRadius();
             camera.centerOnObject(objectCenter, objectRadius);
         }
         // Limpa buffers
@@ -157,9 +177,10 @@ int main(){
         );
     
         glm::mat4 view;
-        if(gui.getLookAtSelection())
+        //Detect if need to update the camera in a lookat format or in a free camera mode
+        if(gui.getLookAtSelection() && finishedObjectLoaded)
         {
-            view = camera.GetViewMatrix(cubeModel.getCenter());
+            view = camera.GetViewMatrix(currentModel.getCenter());
         }
         else
             view = camera.GetViewMatrix();
@@ -168,14 +189,9 @@ int main(){
         ourShader.setMat4("view", view);
         
         //Testing function draw
-        if(gui.getCubeSelection())
+        if(finishedObjectLoaded)
         {
-            settingModelAndDraw(cubeModel, gui, ourShader);
-        }
-
-        if(gui.getCowSelection())
-        {
-            settingModelAndDraw(cowModel, gui, ourShader);
+            settingModelAndDraw(currentModel, gui, ourShader);
         }
         
         gui.endFrame();

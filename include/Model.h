@@ -6,6 +6,7 @@ class Shader;
 
 class Model {
 public:
+    Model();
     Model(const std::string& filepath);
     void Draw() const;
     void Draw(Shader& shader) const;
@@ -14,6 +15,7 @@ public:
     glm::vec3 getCenter() const { return (minBounds + maxBounds) * 0.5f; }
     float getBoundingRadius() const { return boundingRadius; }
     void calculateBoundingBox();
+    inline void loadModelFromFile(const std::string& filepath) { loadModel(filepath); };
 
     
 private:
