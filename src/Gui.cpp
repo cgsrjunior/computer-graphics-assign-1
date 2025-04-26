@@ -138,13 +138,6 @@ void Gui::createMenu()
    
 
     //End - Import Model option
-
-    // Base Model Checkbox options
-    //ImGui::Text("Models to Display: ");
-    //ImGui::Checkbox("Display Cube", &selectCube);
-    //ImGui::SameLine();
-    //ImGui::Checkbox("Display Cow", &selectCow);
-    //ImGui::Spacing();
     
     //Camera Settings
     ImGui::Text("Camera Settings: ");

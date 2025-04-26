@@ -20,6 +20,8 @@ void debugColor(const int& rcolor, const int& gcolor, const int& bcolor);
 void debugVector(const glm::vec3 vector);
 void settingModelAndDraw(Model& model, Gui& gui ,Shader& shader);
 void translateToFrontCamera(Model& model, Camera& camera ,Shader& shader);
+void openGlProcessingMode(Model& currentModel, Gui& gui, Shader& ourShader, bool finishedObjectLoaded);
+void close2GlProcessingMode();
 
 // Configurações
 const unsigned int SCR_WIDTH = 1820;
@@ -63,33 +65,16 @@ int main(){
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    //glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // Cria o programa de shader
     Shader ourShader("src/shader_vertex.glsl", "src/shader_fragment.glsl");
-    //Model cubeModel("models/cube.in");
-    //Model cowModel("models/cow_up.in");
     Model currentModel;
     float objectScale;
     glm::vec3 objectPosition;
     glm::vec3 objectCenter;
     float objectRadius;
     bool finishedObjectLoaded = false;
-
-    // Normaliza as escalas
-    //float cubeScale = 1.0f / cubeModel.getBoundingRadius();
-    //float cowScale = 1.0f / cowModel.getBoundingRadius();
-
-    // Posições relativas
-    //glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
-    //glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
-
-    // Configura a câmera para centralizar no objeto
-    //glm::vec3 objectCenter = cubeModel.getCenter();
-    //float objectRadius = -cubeModel.getBoundingRadius();
-    //std::cout << "Cube Model Bounding Radius: " << objectRadius << std::endl;
-    //camera.centerOnObject(glm::vec3(0.0f), objectRadius);
 
     Gui gui(window);
     gui.init();
@@ -168,6 +153,21 @@ int main(){
         glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
+        //Here we need to check if we have selected OpenGL or Close2GL
+        switch (gui.getGlSelected())
+        {
+        case 0:
+            /* code */
+            openGlProcessingMode(currentModel, gui, ourShader, finishedObjectLoaded);
+            break;
+        case 1:
+            break;
+        default:
+            std::cout << "[ERROR] Gui GL selection not working" << std::endl;
+            break;
+        }
+
+        /*
         // Configurações comuns a ambos os modelos
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f),
@@ -193,6 +193,7 @@ int main(){
         {
             settingModelAndDraw(currentModel, gui, ourShader);
         }
+        */
         
         gui.endFrame();
 
@@ -376,4 +377,33 @@ void translateToFrontCamera(Model& model, Camera& camera, Shader& shader)
     glm::vec3 translation = objectPos - model.getCenter();
     glm::mat4 modelMatrix = glm::mat4(1.0f); // Matriz identidade
     modelMatrix = glm::translate(modelMatrix, translation);
+}
+
+void openGlProcessingMode(Model& currentModel, Gui& gui, Shader& ourShader, bool finishedObjectLoaded)
+{
+    // Configurações de projecao
+    glm::mat4 projection = glm::perspective(
+        glm::radians(45.0f),
+        (float)SCR_WIDTH/(float)SCR_HEIGHT,
+        gui.getNearValue(),
+        gui.getFarValue()  // Far plane grande para ambos objetos
+    );
+
+    glm::mat4 view;
+    //Detect if need to update the camera in a lookat format or in a free camera mode
+    if(gui.getLookAtSelection() && finishedObjectLoaded)
+    {
+        view = camera.GetViewMatrix(currentModel.getCenter());
+    }
+    else
+        view = camera.GetViewMatrix();
+
+    ourShader.setMat4("projection", projection);
+    ourShader.setMat4("view", view);
+    
+    //Testing function draw
+    if(finishedObjectLoaded)
+    {
+        settingModelAndDraw(currentModel, gui, ourShader);
+    }
 }
