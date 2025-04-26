@@ -75,8 +75,8 @@ private:
     // Posições relativas
     //glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
     //glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
-    float translationPos[3] = {0.0f,-1.0f, 2.0f};
-    float translationPosCube[3] = {0.0f,-1.0f, -2.0f};
+    float translationPos[3] = {0.0f, 0.0f, 0.0f};
+    //float translationPosCube[3] = {0.0f,-1.0f, -2.0f};
     float scalingValue = 1;
     float rotationAngle = 0;
     bool rotationXaxis = true;

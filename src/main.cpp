@@ -19,6 +19,7 @@ void drawModel(Model& model, glm::vec3 position, float scale, float rotation_ang
 void debugColor(const int& rcolor, const int& gcolor, const int& bcolor);
 void debugVector(const glm::vec3 vector);
 void settingModelAndDraw(Model& model, Gui& gui ,Shader& shader);
+void translateToFrontCamera(Model& model, Camera& camera ,Shader& shader);
 
 // Configurações
 const unsigned int SCR_WIDTH = 1820;
@@ -115,14 +116,11 @@ int main(){
             std::cout << "Path: " << gui.getModelPath() << std::endl;
             currentModel.loadModelFromFile(gui.getModelPath());
             objectScale = 1.0f / currentModel.getBoundingRadius();
-            objectPosition = glm::vec3(0.0f, -1.0f, 2.0f);
-            // Configura a câmera para centralizar no objeto
-            glm::vec3 objectCenter = currentModel.getCenter();
-            float objectRadius = -currentModel.getBoundingRadius();
-            std::cout << "Model Bounding Radius: " << objectRadius << std::endl;
-            camera.centerOnObject(glm::vec3(0.0f), objectRadius);
             finishedObjectLoaded = true;
             gui.resetModelSelected();
+
+            //Now we need to translate the model to appear in the front of camera
+            translateToFrontCamera(currentModel, camera, ourShader);
         }
 
 
@@ -357,7 +355,7 @@ void debugVector(const glm::vec3 vector)
                         " " << vector.z << std::endl;
 }
 
-void settingModelAndDraw(Model &model, Gui& gui, Shader &shader)
+void settingModelAndDraw(Model& model, Gui& gui, Shader& shader)
 {
     float* modelTransalation = gui.getTranslationVector();
     glm::vec3 translationVector(modelTransalation[0],modelTransalation[1],modelTransalation[2]);
@@ -368,4 +366,14 @@ void settingModelAndDraw(Model &model, Gui& gui, Shader &shader)
     float rotationZaxis = gui.getRotationZAxis();
     glm::vec3 rotationVector(rotationXaxis, rotationYaxis, rotationZaxis);
     drawModel(model, translationVector, modelScale, rotationAngle, rotationVector, shader);
+}
+
+void translateToFrontCamera(Model& model, Camera& camera, Shader& shader)
+{
+    std::cout << "[INIT] - Translate to the front camera" << std::endl;
+    glm::vec3 objectPos = camera.GetPosition() + camera.GetFront() * 10.0f; //Last parameter is distance from the camera
+    //objectPos.y = camera.GetPosition().y; // Mesma altura da câmera (ou ajuste como quiser)
+    glm::vec3 translation = objectPos - model.getCenter();
+    glm::mat4 modelMatrix = glm::mat4(1.0f); // Matriz identidade
+    modelMatrix = glm::translate(modelMatrix, translation);
 }
