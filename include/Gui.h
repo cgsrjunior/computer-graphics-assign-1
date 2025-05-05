@@ -20,6 +20,7 @@ public:
 
     //Getters
     inline float* getTranslationVector() {  return translationPos;  };
+    inline float* getLightPositionVector() {  return lightPos;  };
     inline float  getScalingValue() {  return scalingValue;  };
     inline float  getRotatingAngle() {  return rotationAngle;  };
     inline float  getRotationXAxis() {  if (rotationXaxis) return 1; else return 0;  };
@@ -39,10 +40,19 @@ public:
     inline bool getCcwSelection() { return selectCcw; };
     inline float getNearValue() { return nearValue; };
     inline float getFarValue() { return farValue; };
+
+    //RGB color of the model
     inline float getRcolor() { return m_ClearColor.x; }; 
     inline float getGcolor() { return m_ClearColor.y; };
     inline float getBcolor() { return m_ClearColor.z; };
+
+    //Light color of the model
+    inline float getLightRcolor() { return m_LightColor.x; }; 
+    inline float getLightGcolor() { return m_LightColor.y; };
+    inline float getLightBcolor() { return m_LightColor.z; };
+
     inline int getGlSelected() { return glSelected; };
+    inline int getLightModeSelected() { return lightModeSelected; };
     inline std::string getModelPath() { return completePath; };
     inline bool isModelSelected() { return modelSelected; };
     inline void resetModelSelected() { modelSelected = false; };
@@ -71,12 +81,8 @@ private:
     bool selectPoint = false;
     bool selectCcw = true;
     bool selectCw = false;
-    //void drawModel(Model& model, glm::vec3 position, float scale, float rotation_angle, glm::vec3 rotation_axis ,Shader& shader)
-    // Posições relativas
-    //glm::vec3 cubePosition(0.0f, -1.0f, -2.0f);  // Cubo mais perto
-    //glm::vec3 cowPosition(0.0f, -1.0f, 2.0f);    // Vaca mais longe
     float translationPos[3] = {0.0f, 0.0f, 0.0f};
-    //float translationPosCube[3] = {0.0f,-1.0f, -2.0f};
+    float lightPos[3] = {2.0f, 2.0f, 2.0f};
     float scalingValue = 1;
     float rotationAngle = 0;
     bool rotationXaxis = true;
@@ -86,5 +92,7 @@ private:
     float nearValue=1;
     float farValue=1000;
     int glSelected = 0;
+    int lightModeSelected = 0;
     ImVec4 m_ClearColor;
+    ImVec4 m_LightColor = {0.8f, 0.8f, 0.8f, 1.0f};
 };

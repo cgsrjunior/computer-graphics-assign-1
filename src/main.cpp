@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
     
 
 //Prototipos
@@ -83,7 +84,6 @@ int main(){
     // Configuração OpenGL
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    //glDisable(GL_CULL_FACE); // Desativa culling temporariamente
 
     while (!glfwWindowShouldClose(window))
     {
@@ -108,15 +108,6 @@ int main(){
             translateToFrontCamera(currentModel, camera, ourShader);
         }
 
-
-        if(gui.getLookAtSelection() && finishedObjectLoaded)
-        {
-            processInput(window);
-            // Configura a câmera para centralizar no objeto
-            objectCenter = currentModel.getCenter();
-            objectRadius = -currentModel.getBoundingRadius();
-            camera.centerOnObject(objectCenter, objectRadius);
-        }
         // Limpa buffers
         glClearColor(255.0f, 255.0f, 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,6 +141,14 @@ int main(){
         // Ativa o shader
         ourShader.use();
 
+        // Passa as uniforms para o shader
+        float* lightingPos = gui.getLightPositionVector();
+        glm::vec3 lightPos = glm::vec3(lightingPos[0],lightingPos[1],lightingPos[2]); // Exemplo: luz acima e à frente
+        glm::vec3 viewPos = camera.GetPosition(); // Posição da câmera
+        glm::vec3 lightColor = glm::vec3(gui.getLightRcolor(), gui.getLightGcolor(), gui.getLightBcolor()); // Cor da luz (branco suave)
+        glUniform3fv(glGetUniformLocation(ourShader.ID, "lightPos"), 1, glm::value_ptr(lightPos));
+        glUniform3fv(glGetUniformLocation(ourShader.ID, "viewPos"), 1, glm::value_ptr(viewPos));
+        glUniform3fv(glGetUniformLocation(ourShader.ID, "lightColor"), 1, glm::value_ptr(lightColor));
         glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
@@ -166,34 +165,6 @@ int main(){
             std::cout << "[ERROR] Gui GL selection not working" << std::endl;
             break;
         }
-
-        /*
-        // Configurações comuns a ambos os modelos
-        glm::mat4 projection = glm::perspective(
-            glm::radians(45.0f),
-            (float)SCR_WIDTH/(float)SCR_HEIGHT,
-            gui.getNearValue(),
-            gui.getFarValue()  // Far plane grande para ambos objetos
-        );
-    
-        glm::mat4 view;
-        //Detect if need to update the camera in a lookat format or in a free camera mode
-        if(gui.getLookAtSelection() && finishedObjectLoaded)
-        {
-            view = camera.GetViewMatrix(currentModel.getCenter());
-        }
-        else
-            view = camera.GetViewMatrix();
-
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        
-        //Testing function draw
-        if(finishedObjectLoaded)
-        {
-            settingModelAndDraw(currentModel, gui, ourShader);
-        }
-        */
         
         gui.endFrame();
 
@@ -267,7 +238,7 @@ void processInput(GLFWwindow* window) {
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             camera.ProcessKeyboard(5, deltaTime); // Baixo
         if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-            camera.centerOnObject(glm::vec3(0.0f), -1.73205f); // Reposition camera - Need to adjust this
+            camera.centerOnObject(glm::vec3(0.0f), -1.0f); // Reposition camera - Need to adjust this
     }
 }
 
@@ -373,7 +344,6 @@ void translateToFrontCamera(Model& model, Camera& camera, Shader& shader)
 {
     std::cout << "[INIT] - Translate to the front camera" << std::endl;
     glm::vec3 objectPos = camera.GetPosition() + camera.GetFront() * 10.0f; //Last parameter is distance from the camera
-    //objectPos.y = camera.GetPosition().y; // Mesma altura da câmera (ou ajuste como quiser)
     glm::vec3 translation = objectPos - model.getCenter();
     glm::mat4 modelMatrix = glm::mat4(1.0f); // Matriz identidade
     modelMatrix = glm::translate(modelMatrix, translation);
@@ -393,6 +363,9 @@ void openGlProcessingMode(Model& currentModel, Gui& gui, Shader& ourShader, bool
     //Detect if need to update the camera in a lookat format or in a free camera mode
     if(gui.getLookAtSelection() && finishedObjectLoaded)
     {
+        std::cout << "Object Center: " << glm::to_string(currentModel.getCenter()) << std::endl;
+        std::cout << "Bounding Radius: " << currentModel.getBoundingRadius() << std::endl;
+        camera.centerOnObject(currentModel.getCenter(), -currentModel.getBoundingRadius());
         view = camera.GetViewMatrix(currentModel.getCenter());
     }
     else

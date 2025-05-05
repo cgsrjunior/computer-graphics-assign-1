@@ -145,18 +145,37 @@ void Gui::createMenu()
     ImGui::Spacing();
 
     ImGui::Text("Object Material Rendering Mode: ");
-    ImGui::Checkbox("Solid", &selectSolid);
+    if (ImGui::Checkbox("Solid", &selectSolid)) {
+        if (selectSolid) {
+            selectWireframe = false;
+            selectPoint = false;
+        }
+    }
     ImGui::SameLine();
-    ImGui::Checkbox("Wireframe", &selectWireframe);
+    if (ImGui::Checkbox("Wireframe", &selectWireframe)) {
+        if (selectWireframe) {
+            selectSolid = false;
+            selectPoint = false;
+        }
+    }
     ImGui::SameLine();
-    ImGui::Checkbox("Point", &selectPoint);
-    ImGui::Spacing();
+    if (ImGui::Checkbox("Point", &selectPoint)) {
+        if (selectPoint) {
+            selectSolid = false;
+            selectWireframe = false;
+        }
+    }
+
 
     ImGui::Text("Triangle Vertexes Orientation: ");
-    ImGui::Checkbox("CCW", &selectCcw);
+    // Se CCW for selecionado, desmarca CW (e vice-versa)
+    if (ImGui::Checkbox("CCW", &selectCcw)) {
+        if (selectCcw) selectCw = false;
+    }
     ImGui::SameLine();
-    ImGui::Checkbox("CW", &selectCw);
-    ImGui::Spacing();
+    if (ImGui::Checkbox("CW", &selectCw)) {
+        if (selectCw) selectCcw = false;
+    }
     
     // Base Model Checkbox options
     ImGui::Text("Translation Options: ");
@@ -201,7 +220,27 @@ void Gui::createMenu()
     
     // Seletor de cor
     ImGui::ColorEdit3("Model Color", (float*)&m_ClearColor);
-    
+
+    //OpenGL light model options
+    ImGui::Text("Lighting options (OpenGL exclusive option): ");
+    ImGui::RadioButton("Phong shading (ADS)", &lightModeSelected, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Gourard Shading (AD)", &lightModeSelected, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("Gourard Shading (ADS)", &lightModeSelected, 1);
+    ImGui::Spacing();
+
+    ImGui::Text("Lighting Source Position: ");
+    ImGui::Spacing();
+    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.3f); // Largura dos campos
+    ImGui::InputFloat("lux X", &lightPos[0], 0.1f, 1.0f, "%.2f");
+    ImGui::InputFloat("lux Y", &lightPos[1], 0.1f, 1.0f, "%.2f");
+    ImGui::InputFloat("lux Z", &lightPos[2], 0.1f, 1.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::Separator();
+
+    ImGui::ColorEdit3("Light Color", (float*)&m_LightColor);
+    ImGui::Separator();    
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
                 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     
