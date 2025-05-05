@@ -41,6 +41,9 @@ bool mouseRightClick = false;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+//Shader variable controller - Inicializado em -1 pra fazer uma primeira selecao com base na predefinicao da interface
+int lightModePreviouslySelected = -1;
+
 int main(){
     
     GLFWwindow* window;
@@ -69,7 +72,9 @@ int main(){
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // Cria o programa de shader
-    Shader ourShader("src/shader_vertex.glsl", "src/shader_fragment.glsl");
+    Shader ourShader("phong", "src/phong_vertex.glsl", "src/phong_fragment.glsl");
+    ourShader.loadShader("gouraud_ad", "src/gouraud_ad_vertex.glsl", "src/gouraud_ad_fragment.glsl");
+    ourShader.loadShader("gouraud_ads", "src/gouraud_ads_vertex.glsl", "src/gouraud_ads_fragment.glsl");
     Model currentModel;
     float objectScale;
     glm::vec3 objectPosition;
@@ -133,23 +138,44 @@ int main(){
             glCullFace(GL_BACK);
             glFrontFace(GL_CW);
         }
+        if(lightModePreviouslySelected != gui.getLightModeSelected())
+        {
+            /*Update the current selected shader*/
+            lightModePreviouslySelected = gui.getLightModeSelected();
+            switch (gui.getLightModeSelected())
+            {
+            case 0:
+                /* Phong Shading*/
+                ourShader.use("phong");
+                break;
+            case 1:
+                /* Gourard AD shader */
+                ourShader.use("gouraud_ad");
+                break;
+            case 2:
+                /* Gourard ADS shader */
+                ourShader.use("gouraud_ads");
+                break;
+            default:
+                std::cout << "[ERROR] - GUI sent a lighting option not avaliable" << std::endl;
+                break;
+            }
+        }
+        
 
         //GUI Render
         gui.beginFrame();
         gui.createMenu();
 
-        // Ativa o shader
-        ourShader.use();
-
         // Passa as uniforms para o shader
         float* lightingPos = gui.getLightPositionVector();
-        glm::vec3 lightPos = glm::vec3(lightingPos[0],lightingPos[1],lightingPos[2]); // Exemplo: luz acima e à frente
+        glm::vec3 lightPos = glm::vec3(lightingPos[0],lightingPos[1],lightingPos[2]);
         glm::vec3 viewPos = camera.GetPosition(); // Posição da câmera
-        glm::vec3 lightColor = glm::vec3(gui.getLightRcolor(), gui.getLightGcolor(), gui.getLightBcolor()); // Cor da luz (branco suave)
+        glm::vec3 lightColor = glm::vec3(gui.getLightRcolor(), gui.getLightGcolor(), gui.getLightBcolor());
+        glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "lightPos"), 1, glm::value_ptr(lightPos));
         glUniform3fv(glGetUniformLocation(ourShader.ID, "viewPos"), 1, glm::value_ptr(viewPos));
         glUniform3fv(glGetUniformLocation(ourShader.ID, "lightColor"), 1, glm::value_ptr(lightColor));
-        glm::vec3 rgb = glm::vec3(gui.getRcolor(), gui.getGcolor(), gui.getBcolor());
         glUniform3fv(glGetUniformLocation(ourShader.ID, "rgb"),1, glm::value_ptr(rgb));
         
         //Here we need to check if we have selected OpenGL or Close2GL

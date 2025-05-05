@@ -5,14 +5,16 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <unordered_map>
 
 class Shader {
 public:
     // Construtor lê e constrói o shader
-    Shader(const char* vertexPath, const char* fragmentPath);
+    Shader(const std::string& name, const char* vertexPath, const char* fragmentPath);
     
     // Ativa o shader
-    void use();
+    void use(const std::string& name);
+    void loadShader(const std::string& name, const char* vertexPath, const char* fragmentPath);
     
     // Funções utilitárias para uniforms
     void setBool(const std::string &name, bool value) const;
@@ -32,6 +34,7 @@ public:
     unsigned int ID;
     
 private:
+    std::unordered_map<std::string, unsigned int> shaderPrograms;
     // Verifica erros de compilação/linkagem
     void checkCompileErrors(unsigned int shader, std::string type);
 };

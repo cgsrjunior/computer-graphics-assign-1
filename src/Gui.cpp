@@ -220,6 +220,7 @@ void Gui::createMenu()
     
     // Seletor de cor
     ImGui::ColorEdit3("Model Color", (float*)&m_ClearColor);
+    ImGui::Separator();
 
     //OpenGL light model options
     ImGui::Text("Lighting options (OpenGL exclusive option): ");
@@ -227,7 +228,7 @@ void Gui::createMenu()
     ImGui::SameLine();
     ImGui::RadioButton("Gourard Shading (AD)", &lightModeSelected, 1);
     ImGui::SameLine();
-    ImGui::RadioButton("Gourard Shading (ADS)", &lightModeSelected, 1);
+    ImGui::RadioButton("Gourard Shading (ADS)", &lightModeSelected, 2);
     ImGui::Spacing();
 
     ImGui::Text("Lighting Source Position: ");
@@ -237,8 +238,9 @@ void Gui::createMenu()
     ImGui::InputFloat("lux Y", &lightPos[1], 0.1f, 1.0f, "%.2f");
     ImGui::InputFloat("lux Z", &lightPos[2], 0.1f, 1.0f, "%.2f");
     ImGui::PopItemWidth();
-    ImGui::Separator();
+    ImGui::Spacing();
 
+    ImGui::Text("Light Color Options: ");
     ImGui::ColorEdit3("Light Color", (float*)&m_LightColor);
     ImGui::Separator();    
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 
